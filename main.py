@@ -21,9 +21,9 @@ def main():
                 [gui.Text('[Year\'s] spending')],
                 [gui.Text('£[valueY]')], 
                 [gui.Graph((200,200), (0,0), (200,200), background_color='yellow', k='yearspend_graph')],
-                [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Go to Spending', k='gotospending_but')], 
-                [gui.Text('Get insights into your spending habits.'), gui.Button('Go to Insights', k='gotoinsights_but')], 
-                [gui.Text('Customise your preferences and settings for this application.'),  gui.Button('Go to Settings', k='gotosettings_but')] ]
+                [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
+                [gui.Text('Get insights into your spending habits.'), gui.Button('Open Insights', k='openinsights_but')], 
+                [gui.Text('Customise your preferences and settings for this application.'),  gui.Button('Open Settings', k='opensettings_but')] ]
     
     settings_layout = [ [gui.Text('Settings',  pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
                         [gui.Text('Notifications', pad=gtp(0,0,15,0))],
@@ -44,7 +44,7 @@ def main():
         if home_event in (gui.WINDOW_CLOSED, 'Exit'):
             break
 
-        if not settings_win_active and home_event == 'gotosettings_but':
+        if not settings_win_active and home_event == 'opensettings_but':
             settings_win_active = True
             while settings_win_active:
                 settings_event, settings_values = settings_window.read()
