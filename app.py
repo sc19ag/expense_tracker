@@ -1,3 +1,4 @@
+from enum import Enum
 import PySimpleGUI as gui
 import sqlite3
 from windows import *
@@ -5,6 +6,10 @@ from database import *
 from datetime import datetime
 
 default_theme = 'DarkBlue12'
+
+class Type_dw(Enum):
+    DAILY = "Daily"
+    WEEKLY = "Weekly"
 
 def main():
     gui.theme(default_theme)
@@ -34,15 +39,14 @@ def main():
         elif event == 'addtodaysspend_but':
             connection = create_connection("sqlite.db")
             value = values['addtodaysspend_input']
-            date = current_datetime.date() # sqlite database is not compatible with this type 
-            time = current_datetime.time() # convert these to a datetime object representing the current time
-            userID = 0
-            query_vars = (value, date, time, userID)
+            userID = 1 # will need to have this map to whichever user is logged in at the time this is executed
+            query_vars = (value, current_datetime, userID, Type_dw['DAILY'].value)
             query = '''
-                INSERT INTO Expenses(Value, Date, Time, Type, UserID)
-                VALUES (?, ?, ?, 'Daily', ?);
-            ''' # Change query_vars and placeholders to have seperate date and time as only datetime. Expenses table is already changed.
+                INSERT INTO Expenses(Value, DateTimeStamp, UserID, Type)
+                VALUES (?, ?, ?, ?);
+            ''' 
             execute_query(connection, query, query_vars) 
+            connection.close()
     
     home_window.close()        
                     
