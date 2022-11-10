@@ -33,10 +33,27 @@ def execute_query(connection, query, vars):
     # execute query itself
     cursor = connection.cursor()
     try:
-        cursor.execute(query, vars) # may need to pass python variables as a list and pass them in here as second (or more) argument(s)
-                                # once placeholders have been set up in the sql query string
+        cursor.execute(query, vars)
         connection.commit()
     except Error as e:
         print("Exception caught as {}".format(e))
     
     cursor.close()
+
+
+def execute_select_query(connection, query):
+    cursor = connection.cursor()
+    select_result = []
+    try:
+        print("before execute")
+        for row in cursor.execute(query):
+            select_result.append(row)
+        print("after execute")
+        connection.commit()
+       #select_result = cursor.fetchall()
+    except Error as e:
+        print("Exception caught as {}".format(e))
+    
+    cursor.close()
+    
+    return select_result

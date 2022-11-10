@@ -4,6 +4,9 @@ default_theme_list = ['Dark', 'Blue', 12]
 month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 year_list = [n for n in range(2000, 2050)] 
 
+spending_history_table_data = []
+spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table")
+
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
 
@@ -44,13 +47,11 @@ def make_settings_window():
 
 def make_spending_window():
     title = 'Spending'
-    spending_history_table_data = [ ['[Day]/[Month]/[Year]', '[Value1]', '[D|W]'],
-                                    ['[Day]/[Month]/[Year]', '[Value2]', '[D|W]'] ]
     layout = [ [gui.Text('Spending', pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
                 [gui.Text('Spending History'), gui.Button('Edit', k='spending_edit_but')],
                 [gui.Combo(month_list, 'Select Month', s=10, k='spending_select_month_combo', enable_events=True),
                     gui.Combo(year_list, 'Select Year', s=10, k='spending_select_year_combo', enable_events=True)], 
-                  [gui.Table(spending_history_table_data, ['Date', 'Amount', 'D/W'])] ]
+                  [spending_history_table] ]
     
     return gui.Window(title, layout, finalize=True, location=(15,80))
 
