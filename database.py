@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 import sys
+import app
 
 def create_connection(dbpath):
     connection = None
@@ -57,3 +58,25 @@ def execute_select_query(connection, query):
     cursor.close()
     
     return select_result
+
+def add_home_input_spend(connection, event, values, userID):
+    value = None
+    query_vars = ()
+    query = ''
+    
+    if event == 'addtodaysspend_but':
+        value = values['addtodaysspend_input']
+        query_vars = (value, app.current_datetime, userID, app.Type_dw['DAILY'].value)
+        query = '''
+            INSERT INTO Expenses(Value, DateTimeStamp, UserID, Type)
+            VALUES (?, ?, ?, ?);
+        ''' 
+        execute_query(connection, query, query_vars) 
+    elif event == 'addweeksspend_but':
+        value = values['addweeksspend_input']
+        query_vars =  (value, app.current_datetime, userID, app.Type_dw['WEEKLY'].value)
+        query = '''
+            INSERT INTO Expenses(Value, DateTimeStamp, UserID, Type)
+            VALUES (?, ?, ?, ?);
+        '''
+        execute_query(connection, query, query_vars)

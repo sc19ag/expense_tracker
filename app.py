@@ -6,6 +6,7 @@ from database import *
 from datetime import datetime
 
 default_theme = 'DarkBlue12'
+current_datetime = datetime.now()
 
 class Type_dw(Enum):
     DAILY = "Daily"
@@ -13,19 +14,15 @@ class Type_dw(Enum):
 
 def main():
     gui.theme(default_theme)
-    current_datetime = datetime.now()
     
     home_window = win.make_home_window()
     settings_window, spending_window, insights_window = None, None, None
 
     connection = create_connection("sqlite.db")
-    userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
-    query_vars = ()
-    query = None
     
-    loop = 0
+    #loop = 0
     while True:
-        loop += 1
+        #loop += 1
         window, event, values = gui.read_all_windows()
         if event in (gui.WINDOW_CLOSED, 'exit'):
             window.close()
@@ -43,25 +40,19 @@ def main():
             spending_window = win.make_spending_window()
         elif event == 'openinsights_but' and not insights_window:
             insights_window = win.make_insights_window()
-        elif event == 'addtodaysspend_but':
-            value = values['addtodaysspend_input']
-            userID_tsb = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
-            query_vars_tsb = (value, current_datetime, userID_tsb, Type_dw['DAILY'].value)
-            query_tsb = '''
-                INSERT INTO Expenses(Value, DateTimeStamp, UserID, Type)
-                VALUES (?, ?, ?, ?);
-            ''' 
-            execute_query(connection, query_tsb, query_vars_tsb) 
+
+        # insert user's input spent amounts into database    
+        userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
+        add_home_input_spend(connection, event, values, userID)
         
-        # keep spending history table always updated
-        #userID_sht = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed 
-        #query_vars_sht = (userID_sht)
-        query_sht = '''
+        # keep spending history table always correctly updated
+        #userID_sh = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed 
+        #query_vars_sh = (userID_sh)
+        query_sh = '''
             SELECT DateTimeStamp, Value, Type FROM Expenses;
         '''
-        #print('userID = {}, loop = {}'.format(userID_sht, loop))
-        result_list = execute_select_query(connection, query_sht)
-        win.spending_history_table.update(values=result_list)
+        result_list = execute_select_query(connection, query_sh)
+        win.spending_history_table.update(result_list)
     
     home_window.close()        
                     
