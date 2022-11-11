@@ -42,11 +42,11 @@ def execute_query(connection, query, vars):
     cursor.close()
 
 
-def execute_select_query(connection, query):
+def execute_select_query(connection, query, vars):
     cursor = connection.cursor()
     select_result = []
     try:
-        for row in cursor.execute(query):
+        for row in cursor.execute(query, vars):
             select_result.append(row)
         connection.commit()
     except Error as e:

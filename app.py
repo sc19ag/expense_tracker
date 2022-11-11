@@ -42,16 +42,15 @@ def main():
             insights_window = win.make_insights_window()
 
         # insert user's input spent amounts into database    
-        userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
+        userID = 2 # TODO: will need to have this map to whichever user is logged in at the time this is executed
         add_home_input_spend(connection, event, values, userID)
         
         # keep spending history table always correctly updated
-        # query_vars_sh = (userID)
+        query_vars_sh = (userID, )
         query_sh = '''
-            SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = 1 ORDER BY DateTimeStamp DESC;
+            SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
         '''
-        result_list = execute_select_query(connection, query_sh) # cursor.execute() method does not seem to like taking variables tuple 
-        # when select query is passed to it. TODO: Figure out why, so that WHERE clause can be added to query.
+        result_list = execute_select_query(connection, query_sh, query_vars_sh)
         win.spending_history_table.update(result_list)
     
     home_window.close()        
