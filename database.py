@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Error
-import sys
+import PySimpleGUI as gui
 import app
 
 def create_connection(dbpath):
@@ -12,7 +12,7 @@ def create_connection(dbpath):
     
     return connection
 
-def execute_query(connection, query, vars):
+def execute_query(connection, query, vars=()):
     '''
     # check number of placeholders matches number of variables in query
     placeholder_count = 0
@@ -42,17 +42,24 @@ def execute_query(connection, query, vars):
     cursor.close()
 
 
-def execute_select_query(connection, query, vars):
+def execute_select_query(connection, query, vars=()):
     cursor = connection.cursor()
     select_result = []
+    
+    # No commit is required here, assuming a select query is passed, 
+    # as no transaction is implicitly created by cursor.execute in the case of 
+    # SQL select statements
     try:
         for row in cursor.execute(query, vars):
             select_result.append(row)
-        connection.commit()
     except Error as e:
         print("Exception caught as {}".format(e))
     
     cursor.close()
+
+    if select_result == []:
+        print("Error: Non-select query passed to execute_select_query()")
+        execute_query(connection, "ROLLBACK")
     
     return select_result
 

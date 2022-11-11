@@ -23,6 +23,8 @@ def main():
     #loop = 0
     while True:
         #loop += 1
+        userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
+
         window, event, values = gui.read_all_windows()
         if event in (gui.WINDOW_CLOSED, 'exit'):
             window.close()
@@ -42,7 +44,6 @@ def main():
             insights_window = win.make_insights_window()
 
         # insert user's input spent amounts into database    
-        userID = 2 # TODO: will need to have this map to whichever user is logged in at the time this is executed
         add_home_input_spend(connection, event, values, userID)
         
         # keep spending history table always correctly updated
