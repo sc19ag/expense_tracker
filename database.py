@@ -46,12 +46,9 @@ def execute_select_query(connection, query):
     cursor = connection.cursor()
     select_result = []
     try:
-        print("before execute")
         for row in cursor.execute(query):
             select_result.append(row)
-        print("after execute")
         connection.commit()
-       #select_result = cursor.fetchall()
     except Error as e:
         print("Exception caught as {}".format(e))
     

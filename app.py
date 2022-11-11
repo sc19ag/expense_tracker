@@ -51,7 +51,8 @@ def main():
         query_sh = '''
             SELECT DateTimeStamp, Value, Type FROM Expenses;
         '''
-        result_list = execute_select_query(connection, query_sh)
+        result_list = execute_select_query(connection, query_sh) # cursor.execute() method does not seem to like taking variables tuple 
+        # when select query is passed to it. TODO: Figure out why, so that WHERE clause can be added to query.
         win.spending_history_table.update(result_list)
     
     home_window.close()        
