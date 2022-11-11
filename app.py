@@ -46,10 +46,9 @@ def main():
         add_home_input_spend(connection, event, values, userID)
         
         # keep spending history table always correctly updated
-        #userID_sh = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed 
-        #query_vars_sh = (userID_sh)
+        # query_vars_sh = (userID)
         query_sh = '''
-            SELECT DateTimeStamp, Value, Type FROM Expenses;
+            SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = 1 ORDER BY DateTimeStamp DESC;
         '''
         result_list = execute_select_query(connection, query_sh) # cursor.execute() method does not seem to like taking variables tuple 
         # when select query is passed to it. TODO: Figure out why, so that WHERE clause can be added to query.
