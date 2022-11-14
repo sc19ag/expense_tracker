@@ -1,12 +1,29 @@
 import PySimpleGUI as gui
+from datetime import datetime
 
 default_theme_list = ['Dark', 'Blue', 12]
 month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+month_num_list = [n for n in range(1, 13)] 
 year_list = [n for n in range(2000, 2050)] 
 
 spending_history_table_data = []
 spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table", 
                                         col_widths=[23, 7, 7], max_col_width=27, auto_size_columns=False, justification="centre")
+
+def get_current_month_str():
+    current_month = datetime.now().month
+    
+    for i in range(len(month_num_list) - 1):
+        if current_month == month_num_list[i]:
+            return month_list[i]
+
+def get_current_year_str():
+    current_year = datetime.now().year
+
+    for year in year_list:
+        if year == current_year:
+            return str(year)
+
 
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
@@ -17,11 +34,11 @@ def make_home_window():
                 [gui.Text('Add to Today\'s spending',  pad=((75,0), (10,10))), gui.Text('Add to this Week\'s spending', pad=((100,0), (10,10)))],
                 [gui.InputText(k='addtodaysspend_input'), gui.InputText(k='addweeksspend_input')],
                 [gui.Button('Submit', k='addtodaysspend_but'), gui.Button('Submit', k='addweeksspend_but')],
-                [gui.Text('Today\'s spending'), gui.Text('[Month]\'s spending')],
+                [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(get_current_month_str()))],
                 [gui.Text('£[value1]'), gui.Text('£[value2]')],
                 [gui.Graph((200,200), (0,0), (200,200), background_color='red', k='weekspend_graph'), 
                     gui.Graph((200,200), (0,0), (200,200), background_color='green', k='monthspend_graph')], 
-                [gui.Text('[Year\'s] spending')],
+                [gui.Text('{} spending'.format(get_current_year_str()))],
                 [gui.Text('£[valueY]')], 
                 [gui.Graph((200,200), (0,0), (200,200), background_color='yellow', k='yearspend_graph')],
                 [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
