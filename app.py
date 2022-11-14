@@ -51,8 +51,29 @@ def main():
         query_sh = '''
             SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
         '''
-        result_list = execute_select_query(connection, query_sh, query_vars_sh)
-        win.spending_history_table.update(result_list)
+        sh_result_list = execute_select_query(connection, query_sh, query_vars_sh)
+        win.spending_history_table.update(sh_result_list)
+
+        # TODO: Here i need to somehow convert the DateTimeStamp string values back into DateTime python objects, 
+        # extract the month from these objects, check if it is the month selected in the combo box and only keep the 
+        # records/rows from the original result set returned from execute_select_query that contain this month. I, then, 
+        # need to store these kept records in a new, smaller results set and instead output this to the spending history
+        # table.
+        if event == 'spending_select_month_combo' or event == 'spending_select_year_combo':  
+            smc_month = None
+            for i in range(len(win.month_list) - 1):
+                if values['spending_select_month_combo'] == win.month_list[i]:
+                    smc_month = i + 1
+                    break
+
+            month_year_result_list = []
+            dt = None
+            for row in sh_result_list:
+                dt = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f')
+                if dt.month == smc_month and dt.year == values['spending_select_year_combo']:
+                    month_year_result_list.append(row)
+
+            win.spending_history_table.update(month_year_result_list)
     
     home_window.close()        
                     

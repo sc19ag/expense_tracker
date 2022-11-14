@@ -5,7 +5,8 @@ month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc
 year_list = [n for n in range(2000, 2050)] 
 
 spending_history_table_data = []
-spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table")
+spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table", 
+                                        col_widths=[23, 7, 7], max_col_width=27, auto_size_columns=False, justification="centre")
 
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
@@ -47,13 +48,19 @@ def make_settings_window():
 
 def make_spending_window():
     title = 'Spending'
-    layout = [ [gui.Text('Spending', pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
-                [gui.Text('Spending History'), gui.Button('Edit', k='spending_edit_but')],
+    '''
+        TODO: create a grid layout next to the table for elements used to edit spending history table records,
+        which would have to communicate with the database first, to actually alter the underlying data before presenting
+        it
+    '''
+    # sub_layout_one = [ [gui.Button('Edit', k='spending_edit_but')] ]
+    main_layout = [ [gui.Text('Spending', pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
+                [gui.Text('Spending History')],
                 [gui.Combo(month_list, 'Select Month', s=10, k='spending_select_month_combo', enable_events=True),
                     gui.Combo(year_list, 'Select Year', s=10, k='spending_select_year_combo', enable_events=True)], 
-                  [spending_history_table] ]
+                  [spending_history_table, gui.Button('Edit', k='spending_edit_but')] ]
     
-    return gui.Window(title, layout, finalize=True, location=(15,80))
+    return gui.Window(title, main_layout, finalize=True, location=(15,80))
 
 def make_insights_window():
     title = 'Insights'
