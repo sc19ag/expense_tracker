@@ -1,5 +1,5 @@
 import PySimpleGUI as gui
-import time as t
+import mytime as t
 
 # User currently logged in (will be better as an attribute of a User class)
 userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
