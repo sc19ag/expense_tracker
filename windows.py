@@ -13,26 +13,27 @@ spending_history_table_data = []
 spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table", 
                                         col_widths=[23, 7, 7], max_col_width=27, auto_size_columns=False, justification="centre")
 
+home_day_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_day()))), k='home_day_tot_val')
+home_month_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))), k='home_month_tot_val')
+home_year_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))), k='home_year_tot_val')
+
 
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
 
-'''
-    TODO: The text elements that are supposed to output the total spending values are not updating - so the outputted values need 
-    to be updated in the event loop in app.py and THEN those variables need to be output here. 
-'''
-def make_home_window():
+
+def make_home_window():    
     title = 'Home'
     layout = [ [gui.Text('Expense Tracker', pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
                 [gui.Text('Add to Today\'s spending',  pad=((75,0), (10,10))), gui.Text('Add to this Week\'s spending', pad=((100,0), (10,10)))],
                 [gui.InputText(k='addtodaysspend_input'), gui.InputText(k='addweeksspend_input')],
                 [gui.Button('Submit', k='addtodaysspend_but'), gui.Button('Submit', k='addweeksspend_but')],
                 [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(t.get_current_month_str()))],
-                [gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_day())))), gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))))],
+                [home_day_tot_val, home_month_tot_val],
                 [gui.Graph((200,200), (0,0), (200,200), background_color='red', k='weekspend_graph'), 
                     gui.Graph((200,200), (0,0), (200,200), background_color='green', k='monthspend_graph')], 
                 [gui.Text('{} spending'.format(t.get_current_year_str()))],
-                [gui.Text('£{}'.format( str( t.get_date_elem_total_value(t.get_current_year()) ) ) )], 
+                [home_year_tot_val], 
                 [gui.Graph((200,200), (0,0), (200,200), background_color='yellow', k='yearspend_graph')],
                 [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
                 [gui.Text('Get insights into your spending habits.'), gui.Button('Open Insights', k='openinsights_but')], 

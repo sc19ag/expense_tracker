@@ -3,6 +3,7 @@ import PySimpleGUI as gui
 import windows as win
 import database as dbase
 from datetime import datetime
+import mytime as t
 
 default_theme = 'DarkBlue12'
 current_datetime = datetime.now()
@@ -42,8 +43,18 @@ def main():
         elif event == 'openinsights_but' and not insights_window:
             insights_window = win.make_insights_window()
 
-        # insert user's input spent amounts into database    
+        '''
+            insert user's input spent amounts into database and, then, update 
+            total value text for all date parts on home window  
+        '''  
         dbase.add_home_input_spend(connection, event, values, userID)
+        if event == 'addtodaysspend_but':
+            win.home_day_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_day()))))
+            win.home_month_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))))
+            win.home_year_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))))
+        elif event == 'addweeksspend_but':
+            win.home_month_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))))
+            win.home_year_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))))
         
         # keep spending history table always correctly updated
         query_vars_sh = (userID, )
