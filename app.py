@@ -16,7 +16,19 @@ def main():
     gui.theme(default_theme)
     
     home_window = win.make_home_window()
-    settings_window, spending_window, insights_window = None, None, None
+    home_window_open = True
+
+    settings_window = win.make_settings_window()
+    settings_window.hide()
+    settings_window_open = False
+
+    spending_window = win.make_spending_window()
+    spending_window.hide()
+    spending_window_open = False
+
+    insights_window = win.make_insights_window()
+    insights_window.hide()
+    insights_window_open = False
 
     connection = dbase.create_connection("sqlite.db")
     
@@ -31,17 +43,23 @@ def main():
             if window == home_window:
                 break
             elif window == settings_window:
-                settings_window = None
+                settings_window.hide()
+                settings_window_open = False
             elif window == spending_window:
-                spending_window = None
+                spending_window.hide()
+                spending_window_open = False
             elif window == insights_window:
-                insights_window = None
-        elif event == 'opensettings_but' and not settings_window:
-            settings_window = win.make_settings_window()
-        elif event == 'openspending_but' and not spending_window:
-            spending_window = win.make_spending_window()
-        elif event == 'openinsights_but' and not insights_window:
-            insights_window = win.make_insights_window()
+                insights_window.hide()
+                insights_window_open = False
+        elif event == 'opensettings_but':
+            settings_window.un_hide()
+            settings_window_open = True
+        elif event == 'openspending_but':
+            spending_window.un_hide()
+            spending_window_open = True
+        elif event == 'openinsights_but':
+            insights_window.un_hide()
+            insights_window_open = True
 
         '''
             insert user's input spent amounts into database and, then, update 
@@ -56,21 +74,22 @@ def main():
             win.home_month_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))))
             win.home_year_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))))
         
-        # keep spending history table always correctly updated
-        query_vars_sh = (userID, )
-        query_sh = '''
-            SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
-        '''
-        sh_result_list = dbase.execute_select_query(connection, query_sh, query_vars_sh)
-        win.spending_history_table.update(sh_result_list)
+        if spending_window_open:
+            # keep spending history table always correctly updated
+            query_vars_sh = (userID, )
+            query_sh = '''
+                SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
+            '''
+            sh_result_list = dbase.execute_select_query(connection, query_sh, query_vars_sh)
+            win.spending_history_table.update(sh_result_list)
 
-        if event == 'spending_select_month_combo' or event == 'spending_select_year_combo':  
-            # this can be simpified by using win.month_num_list instead of month_list
             smc_month = None
-            for i in range(len(win.month_list) - 1):
-                if values['spending_select_month_combo'] == win.month_list[i]:
-                    smc_month = i + 1
-                    break
+            if event == 'spending_select_month_combo' or event == 'spending_select_year_combo':  
+                # this can be simpified by using win.month_num_list instead of month_list
+                for i in range(len(win.month_list) - 1):
+                    if values['spending_select_month_combo'] == win.month_list[i]:
+                        smc_month = i + 1
+                        break
 
             month_year_result_list = []
             dt = None
@@ -80,6 +99,7 @@ def main():
                     month_year_result_list.append(row)
 
             win.spending_history_table.update(month_year_result_list)
+       
     
     home_window.close()        
                     
