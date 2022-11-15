@@ -1,8 +1,7 @@
 from enum import Enum
 import PySimpleGUI as gui
-import sqlite3
 import windows as win
-from database import *
+import database as dbase
 from datetime import datetime
 
 default_theme = 'DarkBlue12'
@@ -18,12 +17,12 @@ def main():
     home_window = win.make_home_window()
     settings_window, spending_window, insights_window = None, None, None
 
-    connection = create_connection("sqlite.db")
+    connection = dbase.create_connection("sqlite.db")
     
     #loop = 0
     while True:
         #loop += 1
-        userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
+        userID = win.userID
 
         window, event, values = gui.read_all_windows()
         if event in (gui.WINDOW_CLOSED, 'exit'):
@@ -44,17 +43,18 @@ def main():
             insights_window = win.make_insights_window()
 
         # insert user's input spent amounts into database    
-        add_home_input_spend(connection, event, values, userID)
+        dbase.add_home_input_spend(connection, event, values, userID)
         
         # keep spending history table always correctly updated
         query_vars_sh = (userID, )
         query_sh = '''
             SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
         '''
-        sh_result_list = execute_select_query(connection, query_sh, query_vars_sh)
+        sh_result_list = dbase.execute_select_query(connection, query_sh, query_vars_sh)
         win.spending_history_table.update(sh_result_list)
 
         if event == 'spending_select_month_combo' or event == 'spending_select_year_combo':  
+            # this can be simpified by using win.month_num_list instead of month_list
             smc_month = None
             for i in range(len(win.month_list) - 1):
                 if values['spending_select_month_combo'] == win.month_list[i]:
