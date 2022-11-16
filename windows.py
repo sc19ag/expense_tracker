@@ -5,9 +5,10 @@ import mytime as t
 userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
 
 default_theme_list = ['Dark', 'Blue', 12]
-month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+month_list = ['None', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 month_num_list = [n for n in range(1, 13)] 
-year_list = [n for n in range(2000, 2050)] 
+year_list = [n for n in range(2000, 2030)] 
+year_list.insert(0, 'None')
 
 spending_history_table_data = []
 spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table", 
