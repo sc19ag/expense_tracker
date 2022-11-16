@@ -1,10 +1,15 @@
 import PySimpleGUI as gui
 import mytime as t
+import numpy as np
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+from enum import Enum
 
 # User currently logged in (will be better as an attribute of a User class)
 userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
 
 default_theme_list = ['Dark', 'Blue', 12]
+day_list = ['Mon', 'Tue', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun']
 month_list = ['None', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 month_num_list = [n for n in range(1, 13)] 
 year_list = [n for n in range(2000, 2030)] 
@@ -18,6 +23,24 @@ home_day_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_
 home_month_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))), k='home_month_tot_val')
 home_year_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))), k='home_year_tot_val')
 
+class Graph_type(Enum):
+    WEEK_GRAPH = "week_graph"
+    MONTH_GRAPH = "month_graph"
+    YEAR_GRAPH = "year_graph"
+
+def create_graph_figure(option):
+    x_axis = np.array([])
+    y_axis = np.array([])
+    fig, ax = plt.subplots()
+    
+    if option == "week_graph":
+        x_axis = np.append(x_axis, [day_list])
+    elif option == "month_graph":
+        x_axis = np.append(x_axis, ['W1', 'W2', 'W3', 'W4'])
+    elif option == "year_graph":
+        x_axis = np.append(x_axis, [month_list]) 
+    else:
+        return -1
 
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))

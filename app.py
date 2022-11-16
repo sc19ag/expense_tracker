@@ -4,6 +4,9 @@ import windows as win
 import database as dbase
 from datetime import datetime
 import mytime as t
+import numpy as np
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 default_theme = 'DarkBlue12'
 current_datetime = datetime.now()
@@ -11,6 +14,7 @@ current_datetime = datetime.now()
 class Type_dw(Enum):
     DAILY = "Daily"
     WEEKLY = "Weekly"
+
 
 def main():
     gui.theme(default_theme)
