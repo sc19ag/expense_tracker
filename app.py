@@ -39,17 +39,14 @@ def main():
 
         window, event, values = gui.read_all_windows()
         if event in (gui.WINDOW_CLOSED, 'exit'):
-            window.close()
+            window.hide()
             if window == home_window:
                 break
             elif window == settings_window:
-                settings_window.hide()
                 settings_window_open = False
             elif window == spending_window:
-                spending_window.hide()
                 spending_window_open = False
             elif window == insights_window:
-                insights_window.hide()
                 insights_window_open = False
         elif event == 'opensettings_but':
             settings_window.un_hide()
@@ -74,34 +71,43 @@ def main():
             win.home_month_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))))
             win.home_year_tot_val.update('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))))
         
-        if spending_window_open:
-            # keep spending history table always correctly updated
-            query_vars_sh = (userID, )
-            query_sh = '''
-                SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
-            '''
-            sh_result_list = dbase.execute_select_query(connection, query_sh, query_vars_sh)
-            win.spending_history_table.update(sh_result_list)
+        if spending_window_open: 
+            # TODO: something wrong with this set of control structures that needs to be fixed, in terms of what is displayed
+            # in the spending history table
+            if event == 'spending_select_month_combo' or event == 'spending_select_year_combo':
+                if values['spending_select_month_combo'] != 'None' and values['spending_select_year_combo'] != 'None':
+                # TODO: this can be simpified by using win.month_num_list instead of month_list
+                    smc_month = None
+                    for i in range(len(win.month_list) - 1):
+                        if win.month_list[i] == 'None' or win.month_list[i] == 'none':
+                            continue
 
-            smc_month = None
-            if event == 'spending_select_month_combo' or event == 'spending_select_year_combo':  
-                # this can be simpified by using win.month_num_list instead of month_list
-                for i in range(len(win.month_list) - 1):
-                    if values['spending_select_month_combo'] == win.month_list[i]:
-                        smc_month = i + 1
-                        break
+                        if values['spending_select_month_combo'] == win.month_list[i]:
+                            smc_month = i + 1
+                            break
 
-            month_year_result_list = []
-            dt = None
-            for row in sh_result_list:
-                dt = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f')
-                if dt.month == smc_month and dt.year == values['spending_select_year_combo']:
-                    month_year_result_list.append(row)
+                    month_year_result_list = []
+                    dt = None
+                    for row in sh_result_list:
+                        dt = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f')
+                        if dt.month == smc_month and dt.year == values['spending_select_year_combo']:
+                            month_year_result_list.append(row)
 
-            win.spending_history_table.update(month_year_result_list)
+                    win.spending_history_table.update(month_year_result_list)
+            else:
+                # keep spending history table always correctly updated
+                query_vars_sh = (userID, )
+                query_sh = '''
+                    SELECT DateTimeStamp, Value, Type FROM Expenses WHERE userID = ? ORDER BY DateTimeStamp DESC;
+                '''
+                sh_result_list = dbase.execute_select_query(connection, query_sh, query_vars_sh)
+                win.spending_history_table.update(sh_result_list)
        
     
-    home_window.close()        
+    home_window.close() 
+    settings_window.close()
+    spending_window.close()
+    insights_window.close()       
                     
 
 if __name__ == '__main__':
