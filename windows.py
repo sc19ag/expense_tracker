@@ -2,7 +2,7 @@ import PySimpleGUI as gui
 import mytime as t
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
+import matplotlib as mpl
 from enum import Enum
 
 # User currently logged in (will be better as an attribute of a User class)
@@ -28,19 +28,54 @@ class Graph_type(Enum):
     MONTH_GRAPH = "month_graph"
     YEAR_GRAPH = "year_graph"
 
-def create_graph_figure(option):
-    x_axis = np.array([])
-    y_axis = np.array([])
-    fig, ax = plt.subplots()
+def equate_dimensions_y(y_list, x_list):
+    n = -100
+    for i in range(len(x_list)):
+        y_list.append(n + 100)
+        n += 100
+
+    return y_list
+
+def create_home_graph_figure(option):
+    x_axis, y_axis = None, None
+    week_ylist, month_ylist, year_ylist = [], [], []
+    weeksinmonths_list = None
+
+    fig, ax = mpl.pyplot.subplots()
     
+    # TODO: in ax, x and y axis must both have the same first dimension size
     if option == "week_graph":
-        x_axis = np.append(x_axis, [day_list])
+        week_ylist = equate_dimensions_y(week_ylist, day_list)
+        x_axis = np.array(day_list)
+        y_axis = np.array(week_ylist)
+        ax.set_xlabel('Day')
     elif option == "month_graph":
-        x_axis = np.append(x_axis, ['W1', 'W2', 'W3', 'W4'])
+        weeksinmonths_list = ['W1', 'W2', 'W3', 'W4']
+        month_ylist = equate_dimensions_y(month_ylist, weeksinmonths_list)
+        x_axis = np.array(weeksinmonths_list)
+        y_axis = np.array(month_ylist)
+        ax.set_xlabel('Week')
     elif option == "year_graph":
-        x_axis = np.append(x_axis, [month_list]) 
+        year_ylist = equate_dimensions_y(year_ylist, month_list)
+        x_axis = np.array(month_list)
+        y_axis = np.array(year_ylist)
+        ax.set_xlabel('Month') 
     else:
-        return -1
+        return "Graph error: option must be one of the Graph_type enum values"
+
+    ax.plot(x_axis, y_axis)
+    ax.set_ylabel('Amount')
+    
+    return fig
+
+
+mpl.use("TkAgg")
+
+def draw_figure(figure, canvas):
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+    figure_canvas_agg.draw()
+    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    return figure_canvas_agg
 
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
@@ -54,11 +89,10 @@ def make_home_window():
                 [gui.Button('Submit', k='addtodaysspend_but'), gui.Button('Submit', k='addweeksspend_but')],
                 [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(t.get_current_month_str()))],
                 [home_day_tot_val, home_month_tot_val],
-                [gui.Graph((200,200), (0,0), (200,200), background_color='red', k='weekspend_graph'), 
-                    gui.Graph((200,200), (0,0), (200,200), background_color='green', k='monthspend_graph')], 
+                [gui.Canvas(k='home_week_graph'), gui.Canvas(k='home_month_graph')], 
                 [gui.Text('{} spending'.format(t.get_current_year_str()))],
                 [home_year_tot_val], 
-                [gui.Graph((200,200), (0,0), (200,200), background_color='yellow', k='yearspend_graph')],
+                [gui.Canvas(k='home_year_graph')],
                 [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
                 [gui.Text('Get insights into your spending habits.'), gui.Button('Open Insights', k='openinsights_but')], 
                 [gui.Text('Customise your preferences and settings for this application.'),  gui.Button('Open Settings', k='opensettings_but')] ]

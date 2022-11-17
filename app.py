@@ -106,6 +106,16 @@ def main():
                 '''
                 sh_result_list = dbase.execute_select_query(connection, query_sh, query_vars_sh)
                 win.spending_history_table.update(sh_result_list)
+        
+        # always update graphs on the home window
+        wg_fig = win.create_home_graph_figure(win.Graph_type['WEEK_GRAPH'].value)
+        win.draw_figure(wg_fig, window['home_week_graph'].TKCanvas)
+
+        mg_fig = win.create_home_graph_figure(win.Graph_type['MONTH_GRAPH'].value)
+        win.draw_figure(mg_fig, window['home_month_graph'].TKCanvas)
+
+        yg_fig = win.create_home_graph_figure(win.Graph_type['YEAR_GRAPH'].value)
+        win.draw_figure(yg_fig, window['home_year_graph'].TKCanvas)    
        
     
     home_window.close() 
