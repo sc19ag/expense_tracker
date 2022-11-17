@@ -74,8 +74,19 @@ mpl.use("TkAgg")
 def draw_figure(figure, canvas):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
-    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    figure_canvas_agg.get_tk_widget().pack(fill=None)
     return figure_canvas_agg
+
+def draw_home_graphs(window):
+    wg_fig = create_home_graph_figure(Graph_type['WEEK_GRAPH'].value)
+    draw_figure(wg_fig, window['home_week_graph'].TKCanvas)
+
+    mg_fig = create_home_graph_figure(Graph_type['MONTH_GRAPH'].value)
+    draw_figure(mg_fig, window['home_month_graph'].TKCanvas)
+
+    yg_fig = create_home_graph_figure(Graph_type['YEAR_GRAPH'].value)
+    draw_figure(yg_fig, window['home_year_graph'].TKCanvas)  
+
 
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
@@ -89,10 +100,10 @@ def make_home_window():
                 [gui.Button('Submit', k='addtodaysspend_but'), gui.Button('Submit', k='addweeksspend_but')],
                 [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(t.get_current_month_str()))],
                 [home_day_tot_val, home_month_tot_val],
-                [gui.Canvas(k='home_week_graph'), gui.Canvas(k='home_month_graph')], 
+                [gui.Canvas(s=(50,50), k='home_week_graph'), gui.Canvas(s=(50,50), k='home_month_graph')], 
                 [gui.Text('{} spending'.format(t.get_current_year_str()))],
                 [home_year_tot_val], 
-                [gui.Canvas(k='home_year_graph')],
+                [gui.Canvas(s=(50,50), k='home_year_graph')],
                 [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
                 [gui.Text('Get insights into your spending habits.'), gui.Button('Open Insights', k='openinsights_but')], 
                 [gui.Text('Customise your preferences and settings for this application.'),  gui.Button('Open Settings', k='opensettings_but')] ]

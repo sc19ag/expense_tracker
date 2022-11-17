@@ -35,7 +35,12 @@ def main():
     insights_window_open = False
 
     connection = dbase.create_connection("sqlite.db")
+
+    # initial drawing of home window graphs before first event in event loop
+    win.draw_home_graphs(home_window)
     
+
+    # event loop
     #loop = 0
     while True:
         #loop += 1
@@ -108,14 +113,7 @@ def main():
                 win.spending_history_table.update(sh_result_list)
         
         # always update graphs on the home window
-        wg_fig = win.create_home_graph_figure(win.Graph_type['WEEK_GRAPH'].value)
-        win.draw_figure(wg_fig, window['home_week_graph'].TKCanvas)
-
-        mg_fig = win.create_home_graph_figure(win.Graph_type['MONTH_GRAPH'].value)
-        win.draw_figure(mg_fig, window['home_month_graph'].TKCanvas)
-
-        yg_fig = win.create_home_graph_figure(win.Graph_type['YEAR_GRAPH'].value)
-        win.draw_figure(yg_fig, window['home_year_graph'].TKCanvas)    
+        win.draw_home_graphs(window)  
        
     
     home_window.close() 
