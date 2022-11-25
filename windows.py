@@ -23,6 +23,9 @@ home_day_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_
 home_month_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))), k='home_month_tot_val')
 home_year_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))), k='home_year_tot_val')
 
+fig, ax = mpl.pyplot.subplots()
+fig_x, fig_y, fig_w, fig_h = fig.bbox.bounds
+
 class Graph_type(Enum):
     WEEK_GRAPH = "week_graph"
     MONTH_GRAPH = "month_graph"
@@ -40,10 +43,7 @@ def create_home_graph_figure(option):
     x_axis, y_axis = None, None
     week_ylist, month_ylist, year_ylist = [], [], []
     weeksinmonths_list = None
-
-    fig, ax = mpl.pyplot.subplots()
     
-    # TODO: in ax, x and y axis must both have the same first dimension size
     if option == "week_graph":
         week_ylist = equate_dimensions_y(week_ylist, day_list)
         x_axis = np.array(day_list)
@@ -69,7 +69,8 @@ def create_home_graph_figure(option):
     return fig
 
 
-mpl.use("TkAgg")
+mpl.use("TkAgg") # TODO: To get around this error, could try the idea of creating own tkinter canvas and placing matplotlib
+                    # figure into that, as this line will no longer be required.
 
 def draw_figure(figure, canvas):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
@@ -100,10 +101,10 @@ def make_home_window():
                 [gui.Button('Submit', k='addtodaysspend_but'), gui.Button('Submit', k='addweeksspend_but')],
                 [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(t.get_current_month_str()))],
                 [home_day_tot_val, home_month_tot_val],
-                [gui.Canvas(s=(50,50), k='home_week_graph'), gui.Canvas(s=(50,50), k='home_month_graph')], 
+                [gui.Canvas(s=(fig_w,fig_h), k='home_week_graph', background_color='red'), gui.Canvas(s=(fig_w, fig_h), k='home_month_graph',  background_color='green')], 
                 [gui.Text('{} spending'.format(t.get_current_year_str()))],
                 [home_year_tot_val], 
-                [gui.Canvas(s=(50,50), k='home_year_graph')],
+                [gui.Canvas(s=(fig_w,fig_h), k='home_year_graph', background_color='yellow')],
                 [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
                 [gui.Text('Get insights into your spending habits.'), gui.Button('Open Insights', k='openinsights_but')], 
                 [gui.Text('Customise your preferences and settings for this application.'),  gui.Button('Open Settings', k='opensettings_but')] ]
