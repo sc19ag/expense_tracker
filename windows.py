@@ -1,9 +1,16 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import PySimpleGUI as gui
 import mytime as t
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 from enum import Enum
+import sqlite3
+import database as dbase
+from datetime import datetime
 
 # User currently logged in (will be better as an attribute of a User class)
 userID = 1 # TODO: will need to have this map to whichever user is logged in at the time this is executed
@@ -19,11 +26,44 @@ spending_history_table_data = []
 spending_history_table = gui.Table(spending_history_table_data, ['Date & Time', 'Amount', 'D/W'], k="spending_history_table", 
                                         col_widths=[23, 7, 7], max_col_width=27, auto_size_columns=False, justification="centre")
 
-home_day_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_day()))), k='home_day_tot_val')
-home_month_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_month()))), k='home_month_tot_val')
-home_year_tot_val = gui.Text('£{}'.format(str(t.get_date_elem_total_value(t.get_current_year()))), k='home_year_tot_val')
+def get_current_month_str():
+    current_month = t.get_current_month()
+    
+    for i in range(len(month_num_list) - 1):
+        if current_month == month_num_list[i]:
+            return month_list[i]
 
-fig, ax = mpl.pyplot.subplots()
+def get_current_year_str():
+    current_year = t.get_current_year()
+
+    for year in year_list:
+        if year == current_year:
+            return str(year)
+
+def get_date_elem_total_value(elem):
+    con = sqlite3.connect('sqlite.db')
+
+    query_vars = (userID, )
+    query = '''
+        SELECT DateTimeStamp, Value FROM Expenses WHERE userID = ?; 
+    '''
+
+    results_list = dbase.execute_select_query(con, query, query_vars)
+
+    dt = None
+    total = 0
+    for row in results_list:
+        dt = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f')
+        if dt.day == elem or dt.month == elem or dt.year == elem:
+            total += row[1] # Add value of record to returned total IF date element matches record's
+    
+    return total
+
+home_day_tot_val = gui.Text('£{}'.format(str(get_date_elem_total_value(t.get_current_day()))), k='home_day_tot_val')
+home_month_tot_val = gui.Text('£{}'.format(str(get_date_elem_total_value(t.get_current_month()))), k='home_month_tot_val')
+home_year_tot_val = gui.Text('£{}'.format(str(get_date_elem_total_value(t.get_current_year()))), k='home_year_tot_val')
+
+fig, ax = plt.subplots()
 fig_x, fig_y, fig_w, fig_h = fig.bbox.bounds
 
 class Graph_type(Enum):
@@ -68,15 +108,19 @@ def create_home_graph_figure(option):
     
     return fig
 
+'''
+TODO: To get around this error, could try the idea of creating own tkinter canvas and placing matplotlib
+figure into that, as this line will no longer be required.
+'''
 
-mpl.use("TkAgg") # TODO: To get around this error, could try the idea of creating own tkinter canvas and placing matplotlib
-                    # figure into that, as this line will no longer be required.
+mpl.use("TkAgg")
 
 def draw_figure(figure, canvas):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(fill=None)
     return figure_canvas_agg
+
 
 def draw_home_graphs(window):
     wg_fig = create_home_graph_figure(Graph_type['WEEK_GRAPH'].value)
@@ -88,42 +132,50 @@ def draw_home_graphs(window):
     yg_fig = create_home_graph_figure(Graph_type['YEAR_GRAPH'].value)
     draw_figure(yg_fig, window['home_year_graph'].TKCanvas)  
 
-
 def gtp(left, right, top, bottom):
     return ((left, right), (top, bottom))
 
 
 def make_home_window():    
     title = 'Home'
+    layout = None
     layout = [ [gui.Text('Expense Tracker', pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
                 [gui.Text('Add to Today\'s spending',  pad=((75,0), (10,10))), gui.Text('Add to this Week\'s spending', pad=((100,0), (10,10)))],
                 [gui.InputText(k='addtodaysspend_input'), gui.InputText(k='addweeksspend_input')],
                 [gui.Button('Submit', k='addtodaysspend_but'), gui.Button('Submit', k='addweeksspend_but')],
-                [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(t.get_current_month_str()))],
+                [gui.Text('Today\'s spending'), gui.Text('{} spending'.format(get_current_month_str()))],
                 [home_day_tot_val, home_month_tot_val],
                 [gui.Canvas(s=(fig_w,fig_h), k='home_week_graph', background_color='red'), gui.Canvas(s=(fig_w, fig_h), k='home_month_graph',  background_color='green')], 
-                [gui.Text('{} spending'.format(t.get_current_year_str()))],
+                [gui.Text('{} spending'.format(get_current_year_str()))],
                 [home_year_tot_val], 
                 [gui.Canvas(s=(fig_w,fig_h), k='home_year_graph', background_color='yellow')],
                 [gui.Text('See a more detailed breakdown of your spending. Edit your spending.'), gui.Button('Open Spending', k='openspending_but')], 
                 [gui.Text('Get insights into your spending habits.'), gui.Button('Open Insights', k='openinsights_but')], 
                 [gui.Text('Customise your preferences and settings for this application.'),  gui.Button('Open Settings', k='opensettings_but')] ]
+    w = None
+    try:
+        if len(layout) < 13:
+            print('\n\nLAYOUT LESS THAN 13\n')
+
+        w = gui.Window(title, layout, finalize=True, location=(400,40))
+    except Exception as e:
+        e.printStackTrace()
     
-    return gui.Window(title, layout, finalize=True, location=(400,40))
+    return w
 
 def make_settings_window():
     title = 'Settings'
     layout = [ [gui.Text('Settings',  pad=gtp(240,240,15,15), font='TimesNewRoman 21')],
-                        [gui.Text('Notifications', pad=gtp(0,0,15,0))],
-                        [gui.HorizontalSeparator()],
-                        [gui.Text('Daily Reminder'), gui.Combo(['On', 'Off'], 'On', k='set_dr_combo', enable_events=True)], 
-                        [gui.Text('Weekly Reminder'), gui.Combo(['On', 'Off'], 'On', k='wr_combo', enable_events=True)],
-                        [gui.Text('Appearance', pad=gtp(0,0,15,0))],
-                        [gui.HorizontalSeparator()],
-                        [gui.Text('Graph Type'), gui.Combo(['Line', 'Bar', 'Pie'], 'Line', k='set_graphtype_combo', enable_events=True)],
-                        [gui.Text('Application Theme'), gui.Combo(['Dark', 'Light', 'Gray'], default_theme_list[0], k='set_themep1_combo', enable_events=True), 
-                            gui.Combo(['Blue', 'Green', 'Black', 'Gray', 'Purple', 'Brown', 'Teal', 'Red'], default_theme_list[1], k='set_themep2_combo', enable_events=True), 
-                            gui.Combo(['None', 'Gray', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], default_theme_list[2], k='set_themep3_combo', enable_events=True)] ]
+                [gui.Text('Notifications', pad=gtp(0,0,15,0))],
+                [gui.HorizontalSeparator()],
+                [gui.Text('Daily Reminder'), gui.Combo(['On', 'Off'], 'On', k='set_dr_combo', enable_events=True)], 
+                [gui.Text('Weekly Reminder'), gui.Combo(['On', 'Off'], 'On', k='wr_combo', enable_events=True)],
+                [gui.Text('Appearance', pad=gtp(0,0,15,0))],
+                [gui.HorizontalSeparator()],
+                [gui.Text('Graph Type'), gui.Combo(['Line', 'Bar', 'Pie'], 'Line', k='set_graphtype_combo', enable_events=True)],
+                [gui.Text('Application Theme'), gui.Combo(['Dark', 'Light', 'Gray'], default_theme_list[0], k='set_themep1_combo', enable_events=True), 
+                    gui.Combo(['Blue', 'Green', 'Black', 'Gray', 'Purple', 'Brown', 'Teal', 'Red'], default_theme_list[1], k='set_themep2_combo', enable_events=True), 
+                    gui.Combo(['None', 'Gray', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], default_theme_list[2], k='set_themep3_combo', enable_events=True)] ]
     
     return gui.Window(title, layout, finalize=True, location=(15,400))
 

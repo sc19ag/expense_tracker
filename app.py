@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from enum import Enum
 import PySimpleGUI as gui
 import windows as win
@@ -7,6 +10,7 @@ import mytime as t
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+#from tkinter import *
 
 default_theme = 'DarkBlue12'
 current_datetime = datetime.now()
@@ -14,6 +18,28 @@ current_datetime = datetime.now()
 class Type_dw(Enum):
     DAILY = "Daily"
     WEEKLY = "Weekly"
+
+def add_home_input_spend(connec, ev, val, uID):
+    value = None
+    query_vars = ()
+    query = ''
+    
+    if ev == 'addtodaysspend_but':
+        value = val['addtodaysspend_input']
+        query_vars = (value, current_datetime, uID, Type_dw['DAILY'].value)
+        query = '''
+            INSERT INTO Expenses(Value, DateTimeStamp, UserID, Type)
+            VALUES (?, ?, ?, ?);
+        ''' 
+        dbase.execute_query(connec, query, query_vars) 
+    elif ev == 'addweeksspend_but':
+        value = val['addweeksspend_input']
+        query_vars =  (value, current_datetime, uID, Type_dw['WEEKLY'].value)
+        query = '''
+            INSERT INTO Expenses(Value, DateTimeStamp, UserID, Type)
+            VALUES (?, ?, ?, ?);
+        '''
+        dbase.execute_query(connec, query, query_vars)
 
 
 def main():
@@ -37,7 +63,7 @@ def main():
     connection = dbase.create_connection("sqlite.db")
 
     # initial drawing of home window graphs before first event in event loop
-    win.draw_home_graphs(home_window)
+    #win.draw_home_graphs(home_window)
     
 
     # event loop
@@ -113,7 +139,10 @@ def main():
                 win.spending_history_table.update(sh_result_list)
         
         # always update graphs on the home window
-        win.draw_home_graphs(window)  
+        #win.draw_home_graphs(window) 
+
+        #canvas = Canvas(window)
+
        
     
     home_window.close() 
